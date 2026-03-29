@@ -14,7 +14,7 @@
 
 ### 同步官方 dev 分支
 
-step 1: 从官方拉最新代码
+**step 1: 从官方拉最新代码**
 
 ```bash
 git fetch upstream
@@ -22,14 +22,16 @@ git checkout dev
 git merge upstream/dev --ff-only
 ```
 
-step 2: 把 lilac-fix rebase 到最新 dev
+其中 `upstream` 是 `git@github.com:anomalyco/opencode.git`。
+
+**step 2: 把 lilac-fix rebase 到最新 dev**
 
 ```bash
 git checkout lilac-fix
 git rebase dev
 ```
 
-step 3: 推送更新
+**step 3: 推送更新**
 
 ```bash
 git push origin lilac-fix --force-with-lease
