@@ -2247,6 +2247,122 @@ test("cloudflare-ai-gateway loads with env variables", async () => {
   })
 })
 
+test("config limit.input overrides existing model input limit", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          provider: {
+            anthropic: {
+              models: {
+                "claude-sonnet-4-20250514": {
+                  limit: {
+                    context: 500000,
+                    input: 400000,
+                    output: 64000,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    init: async () => {
+      Env.set("ANTHROPIC_API_KEY", "test-api-key")
+    },
+    fn: async () => {
+      const providers = await Provider.list()
+      const model = providers[ProviderID.anthropic].models["claude-sonnet-4-20250514"]
+      expect(model.limit.context).toBe(500000)
+      expect(model.limit.input).toBe(400000)
+      expect(model.limit.output).toBe(64000)
+    },
+  })
+})
+
+test("existing model input limit preserved when config does not override it", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          provider: {
+            anthropic: {
+              models: {
+                "claude-sonnet-4-20250514": {
+                  name: "Custom Name",
+                },
+              },
+            },
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    init: async () => {
+      Env.set("ANTHROPIC_API_KEY", "test-api-key")
+    },
+    fn: async () => {
+      const providers = await Provider.list()
+      const model = providers[ProviderID.anthropic].models["claude-sonnet-4-20250514"]
+      // input should be preserved from models.dev data, not dropped
+      expect(model.limit.context).toBeGreaterThan(0)
+      expect(model.limit.output).toBeGreaterThan(0)
+    },
+  })
+})
+
+test("custom provider model with input limit", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          provider: {
+            "custom-provider": {
+              name: "Custom",
+              npm: "@ai-sdk/openai-compatible",
+              env: [],
+              models: {
+                model: {
+                  name: "Model",
+                  tool_call: true,
+                  limit: {
+                    context: 200000,
+                    input: 180000,
+                    output: 64000,
+                  },
+                },
+              },
+              options: { apiKey: "test" },
+            },
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const providers = await Provider.list()
+      const model = providers[ProviderID.make("custom-provider")].models["model"]
+      expect(model.limit.context).toBe(200000)
+      expect(model.limit.input).toBe(180000)
+      expect(model.limit.output).toBe(64000)
+    },
+  })
+})
+
 test("cloudflare-ai-gateway forwards config metadata options", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
