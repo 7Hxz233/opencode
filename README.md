@@ -6,6 +6,11 @@
 
 由于官方仓库待处理 PR 过多（当前 1.8k 个），不考虑给官方仓库提交 PR。
 
+## Usage
+
+1. 前往 [Actions 标签](https://github.com/7Hxz233/opencode/actions)，进入最新的 workflow run，下载对应的产物。
+2. 解压，将对应版本的可执行文件覆盖到你的环境中（对于 Linux，通常是 `~/.opencode/bin/opencode`）。
+
 ## Contribute
 
 ### 提交修复
@@ -36,6 +41,12 @@ git rebase dev
 ```bash
 git push origin lilac-fix --force-with-lease
 ```
+
+### 构建产物
+
+前往 [Actions 标签](https://github.com/7Hxz233/opencode/actions)，执行 build 这一 workflow。
+
+我们约定设置 version 为当前官方版本号 + `-lilac` 后缀，如 `1.3.5-lilac`。
 
 ## Change Logs & Todos
 
