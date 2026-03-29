@@ -8,7 +8,13 @@
 
 ## Contribute
 
-### 1. 从官方拉最新代码
+### 提交修复
+
+以 PR 的形式提交，合并到当前分支（`lilac-fix`)
+
+### 同步官方 dev 分支
+
+step 1: 从官方拉最新代码
 
 ```bash
 git fetch upstream
@@ -16,14 +22,14 @@ git checkout dev
 git merge upstream/dev --ff-only
 ```
 
-### 2. 把 lilac-fix rebase 到最新 dev
+step 2: 把 lilac-fix rebase 到最新 dev
 
 ```bash
 git checkout lilac-fix
 git rebase dev
 ```
 
-### 3. 推送更新
+step 3: 推送更新
 
 ```bash
 git push origin lilac-fix --force-with-lease
